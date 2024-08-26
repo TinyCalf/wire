@@ -37,6 +37,8 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 )
 
+const version = "v0.6.0.1"
+
 func main() {
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
@@ -45,6 +47,8 @@ func main() {
 	subcommands.Register(&diffCmd{}, "")
 	subcommands.Register(&genCmd{}, "")
 	subcommands.Register(&showCmd{}, "")
+	subcommands.Register(&versionCmd{}, "")
+
 	flag.Parse()
 
 	// Initialize the default logger to log to stderr.
@@ -64,6 +68,7 @@ func main() {
 		"diff":     true,
 		"gen":      true,
 		"show":     true,
+		"version":  true,
 	}
 	// Default to running the "gen" command.
 	if args := flag.Args(); len(args) == 0 || !allCmds[args[0]] {
@@ -606,4 +611,22 @@ func logErrors(errs []error) {
 	for _, err := range errs {
 		log.Println(strings.Replace(err.Error(), "\n", "\n\t", -1))
 	}
+}
+
+type versionCmd struct {
+}
+
+func (*versionCmd) Name() string { return "version" }
+func (*versionCmd) Synopsis() string {
+	return "show version"
+}
+func (*versionCmd) Usage() string {
+	return "version"
+}
+func (cmd *versionCmd) SetFlags(f *flag.FlagSet) {
+
+}
+func (cmd *versionCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	fmt.Println(version)
+	return 0
 }
