@@ -1053,9 +1053,12 @@ func processFieldsOf(fset *token.FileSet, info *types.Info, call *ast.CallExpr) 
 
 	fields := make([]*Field, 0, len(fieldsToProcess))
 	for _, arg := range fieldsToProcess {
-		v, err := checkField(arg, struc)
+		v, err := checkFieldNotPrevented(arg, struc)
 		if err != nil {
 			return nil, notePosition(fset.Position(call.Pos()), err)
+		}
+		if v == nil {
+			continue
 		}
 		out := []types.Type{v.Type()}
 		if isPtrToStruct {
@@ -1090,6 +1093,27 @@ func checkField(f ast.Expr, st *types.Struct) (*types.Var, error) {
 		if st.Field(i).Name() == fieldName {
 			if isPrevented(st.Tag(i)) {
 				return nil, fmt.Errorf("%s is prevented from injecting by wire", fieldName)
+			}
+			return st.Field(i), nil
+		}
+	}
+	return nil, fmt.Errorf("%s is NOT a field of %s", fieldName, st.String())
+}
+
+func checkFieldNotPrevented(f ast.Expr, st *types.Struct) (*types.Var, error) {
+	b, ok := f.(*ast.BasicLit)
+	if !ok || b.Kind != token.STRING {
+		return nil, fmt.Errorf("%v must be a string with the field name", f)
+	}
+	fieldName, err := strconv.Unquote(b.Value)
+	if err != nil {
+		return nil, fmt.Errorf("invalid field name %v", b.Value)
+	}
+	for i := 0; i < st.NumFields(); i++ {
+		// if strings.EqualFold(strconv.Quote(st.Field(i).Name()), b.Value) {
+		if st.Field(i).Name() == fieldName {
+			if isPrevented(st.Tag(i)) {
+				return nil, nil
 			}
 			return st.Field(i), nil
 		}
