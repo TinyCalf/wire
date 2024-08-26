@@ -76,7 +76,7 @@ package foobarbaz
 
 import (
     // ...
-    "github.com/google/wire"
+    "github.com/TinyCalf/wire"
 )
 
 // ...
@@ -121,7 +121,7 @@ package main
 import (
     "context"
 
-    "github.com/google/wire"
+    "github.com/TinyCalf/wire"
     "example.com/foobarbaz"
 )
 
