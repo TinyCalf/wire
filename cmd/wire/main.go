@@ -37,7 +37,7 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 )
 
-const version = "v0.6.0.2"
+const version = "v0.6.0.3"
 
 func main() {
 	subcommands.Register(subcommands.CommandsCommand(), "")
